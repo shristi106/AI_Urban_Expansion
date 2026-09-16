@@ -1,0 +1,26 @@
+AI-BASED SATELLITE URBAN EXPANSION AND LAND-USE CHANGE DETECTION
+
+Experiment 1: Siamese CNN Baseline
+------------------------------------
+Input: 13 Sentinel-2 bands
+Architecture: Siamese CNN
+Best Validation F1: 0.1450
+Final Validation IoU: 0.0383
+Final Validation Dice: 0.0679
+
+Experiment 2: Hybrid Siamese CNN + ViT + U-Net
+-----------------------------------------------
+Input: 13 Sentinel-2 bands
+Architecture: Siamese CNN + Vision Transformer + U-Net
+Parameters: 767,777
+Best Validation F1: 0.1725
+Final Validation F1: 0.1459
+Final Validation IoU: 0.0894
+Final Validation Dice: 0.1459
+
+Relative F1 improvement:
+18.97% over baseline
+
+Next Experiment:
+Hybrid Siamese CNN + ViT + U-Net
+with NDVI + NDBI spectral features

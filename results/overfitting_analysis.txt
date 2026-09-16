@@ -1,0 +1,23 @@
+OVERFITTING / UNDERFITTING ANALYSIS
+============================================================
+
+MODEL: Siamese CNN + Vision Transformer with training augmentation
+
+TRAINING SET
+loss: 1.155941
+accuracy: 0.975452
+precision: 0.000000
+recall: 0.000000
+f1: 0.000000
+iou: 0.000000
+
+VALIDATION SET
+loss: 1.128419
+accuracy: 0.979823
+precision: 0.000000
+recall: 0.000000
+f1: 0.000000
+iou: 0.000000
+
+F1 gap: 0.000000
+Loss gap: -0.027522

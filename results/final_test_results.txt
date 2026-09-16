@@ -1,0 +1,13 @@
+FINAL TEST EVALUATION
+=====================
+
+Model: Hybrid Siamese CNN + ViT + U-Net
+Input: 13 Sentinel-2 bands
+Threshold: 0.5
+
+Accuracy  : 0.9219
+Precision : 0.3279
+Recall    : 0.4868
+F1 Score  : 0.3918
+IoU       : 0.2436
+Dice      : 0.3918

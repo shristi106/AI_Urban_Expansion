@@ -1,0 +1,34 @@
+[
+  {
+    "id": "sample_1",
+    "file": "changed_0005.npz",
+    "name": "Scene A: Rapid Urban Outskirts Expansion",
+    "location": "Montpellier Suburbs (Sentinel-2)",
+    "expected": "High Expansion (~21.5%)",
+    "desc": "Intensive conversion of agricultural/fallow parcels to built-up residential structures and impervious road paving."
+  },
+  {
+    "id": "sample_2",
+    "file": "changed_0018.npz",
+    "name": "Scene B: Commercial & Transport Corridor",
+    "location": "Beirut Suburbs (Sentinel-2)",
+    "expected": "Moderate Growth (~2.1%)",
+    "desc": "Linear infrastructure extension and commercial warehouse site preparation along an arterial highway."
+  },
+  {
+    "id": "sample_3",
+    "file": "changed_0000.npz",
+    "name": "Scene C: Localized Infill Development",
+    "location": "Las Vegas Fringe (Sentinel-2)",
+    "expected": "Localized Infill (~1.4%)",
+    "desc": "Subdivision expansion and building construction on previously bare desert soil."
+  },
+  {
+    "id": "sample_4",
+    "file": "unchanged_0000.npz",
+    "name": "Scene D: Dense Stable Urban Matrix (Control)",
+    "location": "Madrid Metropolitan (Sentinel-2)",
+    "expected": "No Change (0.0%)",
+    "desc": "Established dense urban core serving as a negative control to test noise rejection and false-positive suppression."
+  }
+]

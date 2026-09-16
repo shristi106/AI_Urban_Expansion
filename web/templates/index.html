@@ -1,0 +1,1998 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UrbanScope AI | Satellite Urban Expansion & Land-Use Change Detection</title>
+
+    <!-- Meta Description & Identity -->
+    <meta name="description" content="AI-Based Satellite Urban Expansion and Land-Use Change Detection using Bi-Temporal Sentinel-2 Imagery and Hybrid Deep Learning (Siamese CNN + Vision Transformer).">
+    <meta name="author" content="Krishnananda (24BIT0520) & Shristi Sehgal (24BIT0202) - VIT Tech-a-thon">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235DBB63'><path d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/></svg>">
+</head>
+
+<body>
+
+    <!-- =====================================================
+         MAIN NAVIGATION (Sticky Header)
+    ====================================================== -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#dashboard" class="nav-brand">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
+                        <polyline points="2 12 12 17 22 12"></polyline>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-title">UrbanScope <strong>AI</strong></span>
+                    <span class="brand-sub">Satellite Analytics</span>
+                </div>
+            </a>
+
+            <div class="nav-links">
+                <a href="#overview" class="nav-link">Overview</a>
+                <a href="#detection" class="nav-link">Detection</a>
+                <a href="#models" class="nav-link">Models</a>
+                <a href="#architecture" class="nav-link">Architecture</a>
+                <a href="#results" class="nav-link">Results</a>
+                <a href="#workflow" class="nav-link">Workflow</a>
+                <a href="#cross-validation" class="nav-link">Validation</a>
+                <a href="#literature" class="nav-link">Research</a>
+            </div>
+
+            <div class="nav-actions">
+                <div class="status-indicator" id="backendStatus" title="PyTorch Inference Engine Ready">
+                    <span class="status-pulse"></span>
+                    <span class="status-label">● Model Ready</span>
+                </div>
+                <a href="#detection" class="btn btn-primary btn-sm">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
+                    Run Detection
+                </a>
+            </div>
+        </div>
+    </nav>
+
+
+    <!-- =====================================================
+         1. HERO / LANDING SECTION
+    ====================================================== -->
+    <section class="hero-section" id="dashboard">
+        <div class="geo-grid-overlay"></div>
+        <div class="container hero-container">
+            <div class="hero-content">
+                <div class="hero-badges-row">
+                    <span class="hero-tag-badge">SENTINEL-2</span>
+                    <span class="hero-tag-badge">13 SPECTRAL BANDS</span>
+                    <span class="hero-tag-badge">PIXEL-LEVEL CHANGE DETECTION</span>
+                    <span class="hero-tag-badge highlight">HYBRID DEEP LEARNING</span>
+                </div>
+
+                <h1 class="hero-title">
+                    AI-Based Satellite <br>
+                    Urban Expansion & <br>
+                    <span class="gradient-text">Land-Use Change Detection</span>
+                </h1>
+
+                <p class="hero-subtitle">
+                    Bi-temporal Sentinel-2 imagery + hybrid deep learning for pixel-level change detection.
+                </p>
+
+                <div class="hero-cta-group">
+                    <a href="#detection" class="btn btn-primary btn-lg">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        Run Change Detection
+                    </a>
+                    <a href="#overview" class="btn btn-secondary btn-lg">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                        </svg>
+                        Explore Methodology
+                    </a>
+                </div>
+
+                <!-- Verified Technical Telemetry Chips -->
+                <div class="hero-specs">
+                    <div class="spec-chip">
+                        <span class="spec-label">Sensor Source</span>
+                        <span class="spec-val">Sentinel-2 MSI</span>
+                    </div>
+                    <div class="spec-chip">
+                        <span class="spec-label">Spectral Channels</span>
+                        <span class="spec-val">13 Bands</span>
+                    </div>
+                    <div class="spec-chip">
+                        <span class="spec-label">Spatial Resolution</span>
+                        <span class="spec-val">10m GSD</span>
+                    </div>
+                    <div class="spec-chip">
+                        <span class="spec-label">Benchmark</span>
+                        <span class="spec-val">OSCD Protocol</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Abstract Geospatial Visualization Visual -->
+            <div class="hero-visual">
+                <div class="radar-card">
+                    <div class="radar-header">
+                        <div class="radar-dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span class="radar-title">Copernicus Sentinel-2 • Multi-Temporal Telemetry</span>
+                        <span class="live-pill">LIVE ENGINE</span>
+                    </div>
+                    <div class="radar-display">
+                        <div class="radar-sweep"></div>
+                        <div class="radar-circle circle-1"></div>
+                        <div class="radar-circle circle-2"></div>
+                        <div class="radar-circle circle-3"></div>
+                        <div class="radar-crosshair-h"></div>
+                        <div class="radar-crosshair-v"></div>
+
+                        <!-- Detected Target Indicators -->
+                        <div class="target-blip blip-1" title="Urban Sprawl Detected (F1: 47.44%)">
+                            <span class="blip-ping"></span>
+                            <span class="blip-label">Expansion #01</span>
+                        </div>
+                        <div class="target-blip blip-2" title="Industrial Infill">
+                            <span class="blip-ping"></span>
+                            <span class="blip-label">Infill #02</span>
+                        </div>
+                        <div class="target-blip blip-3" title="Infrastructure Corridor">
+                            <span class="blip-ping"></span>
+                            <span class="blip-label">Corridor #03</span>
+                        </div>
+
+                        <div class="radar-overlay-data">
+                            <span class="coord-tag">43°36'43"N 3°52'38"E • UTM 31N</span>
+                            <span class="temporal-tag">T1 [Reference] ➔ T2 [Follow-up]</span>
+                        </div>
+                    </div>
+                    <div class="radar-footer">
+                        <div class="rf-stat">
+                            <span>Primary Architecture</span>
+                            <strong>Siamese CNN + ViT</strong>
+                        </div>
+                        <div class="rf-stat">
+                            <span>Test Accuracy</span>
+                            <strong class="highlight">95.44%</strong>
+                        </div>
+                        <div class="rf-stat">
+                            <span>Test F1</span>
+                            <strong class="highlight">47.44%</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- =====================================================
+         2. PROJECT OVERVIEW SECTION (Visual Pipeline)
+    ====================================================== -->
+    <section class="overview-section" id="overview">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">PROJECT OVERVIEW</div>
+                <h2 class="section-title">End-to-End Processing Pipeline</h2>
+                <p class="section-desc">
+                    How bi-temporal Sentinel-2 satellite imagery is acquired, preprocessed, compared through hybrid deep learning, and transformed into pixel-level urban expansion intelligence.
+                </p>
+            </div>
+
+            <!-- Visual Flowchart Cards -->
+            <div class="pipeline-flow-grid">
+                <div class="pipeline-card">
+                    <div class="pipe-num">01</div>
+                    <div class="pipe-icon-box">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+                            <path d="M2 12h20"></path>
+                        </svg>
+                    </div>
+                    <h4 class="pipe-title">T1 Satellite Image</h4>
+                    <p class="pipe-desc">Reference Sentinel-2 Level-1C acquisition capturing baseline urban topography, vegetation indices, and land boundaries.</p>
+                    <div class="pipe-chip">13 Spectral Bands</div>
+                </div>
+
+                <div class="pipe-arrow">➔</div>
+
+                <div class="pipeline-card">
+                    <div class="pipe-num">02</div>
+                    <div class="pipe-icon-box">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M12 6v6l4 2"></path>
+                        </svg>
+                    </div>
+                    <h4 class="pipe-title">T2 Satellite Image</h4>
+                    <p class="pipe-desc">Follow-up observation scene after temporal interval, reflecting physical land-use transformations and sprawl.</p>
+                    <div class="pipe-chip">Spatially Co-Registered</div>
+                </div>
+
+                <div class="pipe-arrow">➔</div>
+
+                <div class="pipeline-card">
+                    <div class="pipe-num">03</div>
+                    <div class="pipe-icon-box">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                            <path d="M3 9h18M9 21V9"></path>
+                        </svg>
+                    </div>
+                    <h4 class="pipe-title">Preprocessing</h4>
+                    <p class="pipe-desc">Top-of-atmosphere reflectance normalization (/ 10,000) and uniform tiling into 128×128 pixel multi-spectral patches.</p>
+                    <div class="pipe-chip">TOA [0, 1] • 128×128</div>
+                </div>
+
+                <div class="pipe-arrow">➔</div>
+
+                <div class="pipeline-card highlight-pipe">
+                    <div class="pipe-num">04</div>
+                    <div class="pipe-icon-box">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 20V10M12 20V4M6 20v-6"></path>
+                        </svg>
+                    </div>
+                    <h4 class="pipe-title">Hybrid Model</h4>
+                    <p class="pipe-desc">Shared Siamese CNN extracts localized features; temporal difference is processed by a 2-layer Vision Transformer.</p>
+                    <div class="pipe-chip">Siamese CNN + ViT</div>
+                </div>
+
+                <div class="pipe-arrow">➔</div>
+
+                <div class="pipeline-card">
+                    <div class="pipe-num">05</div>
+                    <div class="pipe-icon-box">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                            <path d="M8 12h8M12 8v8"></path>
+                        </svg>
+                    </div>
+                    <h4 class="pipe-title">Change Map</h4>
+                    <p class="pipe-desc">U-Net decoder reconstructs spatial dimensions, outputting a high-confidence pixel-level binary change mask.</p>
+                    <div class="pipe-chip">1 × 128 × 128 Binary</div>
+                </div>
+
+                <div class="pipe-arrow">➔</div>
+
+                <div class="pipeline-card">
+                    <div class="pipe-num">06</div>
+                    <div class="pipe-icon-box">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                        </svg>
+                    </div>
+                    <h4 class="pipe-title">Expansion Analysis</h4>
+                    <p class="pipe-desc">Acreage quantification, transition percentage, and alpha-blended overlay mapping for urban planners.</p>
+                    <div class="pipe-chip">Area % • Overlay • GIS</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- =====================================================
+         3. LIVE CHANGE DETECTION WORKSPACE (The Core Studio)
+    ====================================================== -->
+    <section class="workspace-section" id="detection">
+        <div id="workspace"></div>
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">OPERATIONAL STUDIO</div>
+                <h2 class="section-title">Live Satellite Change Detection</h2>
+                <p class="section-desc">
+                    Upload bi-temporal satellite image pairs or select curated Sentinel-2 test scenes to execute real PyTorch deep learning inference.
+                </p>
+            </div>
+
+            <!-- Error Alert Banner -->
+            <div class="alert-box hidden" id="alertBox">
+                <span class="alert-icon">⚠️</span>
+                <span class="alert-msg" id="alertMessage">Please provide satellite inputs before running inference.</span>
+                <button class="alert-close" onclick="dismissAlert()">×</button>
+            </div>
+
+            <!-- Curated Sample Presets Selector -->
+            <div class="sample-picker-bar">
+                <div class="picker-label">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                    <span>Curated Sentinel-2 Test Scenes:</span>
+                </div>
+                <div class="sample-chips-grid">
+                    <button class="sample-chip active" data-sample-id="sample_1" onclick="selectSample('sample_1')">
+                        <span class="chip-dot active"></span>
+                        <span class="chip-name">Montpellier Suburbs</span>
+                        <span class="chip-tag high">High Expansion (~21.5%)</span>
+                    </button>
+                    <button class="sample-chip" data-sample-id="sample_2" onclick="selectSample('sample_2')">
+                        <span class="chip-dot"></span>
+                        <span class="chip-name">Beirut Highway</span>
+                        <span class="chip-tag moderate">Corridor Growth (~2.1%)</span>
+                    </button>
+                    <button class="sample-chip" data-sample-id="sample_3" onclick="selectSample('sample_3')">
+                        <span class="chip-dot"></span>
+                        <span class="chip-name">Las Vegas Fringe</span>
+                        <span class="chip-tag moderate">Infill (~1.4%)</span>
+                    </button>
+                    <button class="sample-chip" data-sample-id="sample_4" onclick="selectSample('sample_4')">
+                        <span class="chip-dot"></span>
+                        <span class="chip-name">Madrid Core</span>
+                        <span class="chip-tag zero">Stable Control (0.0%)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dual Upload Grid -->
+            <div class="workspace-grid">
+                <!-- T1 Upload Card -->
+                <div class="upload-card" id="cardT1">
+                    <div class="card-top-bar">
+                        <div class="card-temporal-tag">
+                            <span class="t-badge">T1</span>
+                            <span class="t-label">Reference Acquisition</span>
+                        </div>
+                        <span class="t-hint">PNG, JPG, TIF, or NPZ</span>
+                    </div>
+
+                    <div class="dropzone-box" id="dropzoneT1">
+                        <div class="dropzone-inner">
+                            <div class="preview-container">
+                                <img id="previewImgT1" src="/static/samples/sample_1_t1.png" alt="T1 Satellite Preview">
+                                <div class="upload-prompt" id="promptT1">
+                                    <svg viewBox="0 0 24 24" class="upload-icon" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="17 8 12 3 7 8"></polyline>
+                                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                                    </svg>
+                                    <p>Drop <strong>Time T1</strong> Image Here</p>
+                                    <span class="browse-link">or browse file</span>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="file" id="fileInputT1" accept="image/*,.npz" class="hidden-input">
+                    </div>
+
+                    <div class="card-meta">
+                        <span class="file-name" id="filenameT1">changed_0005_t1.png (Montpellier Suburbs)</span>
+                        <span class="file-status ok">Loaded</span>
+                    </div>
+                </div>
+
+                <!-- Center Action Trigger -->
+                <div class="workspace-center-action">
+                    <div class="arrow-line"></div>
+                    <button class="btn btn-primary btn-detect" id="btnRunInference" onclick="runChangeDetection()">
+                        <span class="btn-spinner hidden" id="btnSpinner"></span>
+                        <svg viewBox="0 0 24 24" class="btn-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                        </svg>
+                        <span id="btnText">Detect Changes</span>
+                    </button>
+                    <div class="engine-badge">
+                        <span>PyTorch 2.14</span>
+                        <span>767,777 Params</span>
+                    </div>
+                </div>
+
+                <!-- T2 Upload Card -->
+                <div class="upload-card" id="cardT2">
+                    <div class="card-top-bar">
+                        <div class="card-temporal-tag">
+                            <span class="t-badge t2-badge">T2</span>
+                            <span class="t-label">Observation Acquisition</span>
+                        </div>
+                        <span class="t-hint">PNG, JPG, TIF, or NPZ</span>
+                    </div>
+
+                    <div class="dropzone-box" id="dropzoneT2">
+                        <div class="dropzone-inner">
+                            <div class="preview-container">
+                                <img id="previewImgT2" src="/static/samples/sample_1_t2.png" alt="T2 Satellite Preview">
+                                <div class="upload-prompt" id="promptT2">
+                                    <svg viewBox="0 0 24 24" class="upload-icon" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="17 8 12 3 7 8"></polyline>
+                                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                                    </svg>
+                                    <p>Drop <strong>Time T2</strong> Image Here</p>
+                                    <span class="browse-link">or browse file</span>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="file" id="fileInputT2" accept="image/*,.npz" class="hidden-input">
+                    </div>
+
+                    <div class="card-meta">
+                        <span class="file-name" id="filenameT2">changed_0005_t2.png (High Expansion ~21.5%)</span>
+                        <span class="file-status ok">Loaded</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alternative 13-Band NPZ Upload Zone -->
+            <div class="npz-strip">
+                <div class="npz-content">
+                    <div class="npz-icon">📦</div>
+                    <div class="npz-info">
+                        <strong>Direct 13-Band Research Patch (.NPZ) Upload</strong>
+                        <span>Supports raw Level-1C multi-spectral patches containing <code>image1</code> and <code>image2</code> arrays (13, 128, 128).</span>
+                    </div>
+                </div>
+                <label for="fileInputNPZ" class="btn btn-secondary btn-sm">
+                    Select .NPZ File
+                    <input type="file" id="fileInputNPZ" accept=".npz" class="hidden-input" onchange="handleNPZUpload(this)">
+                </label>
+            </div>
+
+            <!-- Inference Stepper (Animated During Detection) -->
+            <div class="stepper-box hidden" id="inferenceStepper">
+                <div class="stepper-header">
+                    <span class="step-title">Deep Learning Inference Pipeline</span>
+                    <span class="step-count" id="stepCount">Processing...</span>
+                </div>
+                <div class="stepper-progress">
+                    <div class="step-node active" id="stNode1">
+                        <div class="node-circle">1</div>
+                        <div class="node-content">
+                            <strong>Preprocessing</strong>
+                            <small>Normalizing 13-band TOA</small>
+                        </div>
+                    </div>
+                    <div class="node-connector" id="stConn1"></div>
+                    <div class="step-node" id="stNode2">
+                        <div class="node-circle">2</div>
+                        <div class="node-content">
+                            <strong>Siamese CNN</strong>
+                            <small>Feature Extraction</small>
+                        </div>
+                    </div>
+                    <div class="node-connector" id="stConn2"></div>
+                    <div class="step-node" id="stNode3">
+                        <div class="node-circle">3</div>
+                        <div class="node-content">
+                            <strong>Difference Tensor</strong>
+                            <small>|F1 − F2| Subtraction</small>
+                        </div>
+                    </div>
+                    <div class="node-connector" id="stConn3"></div>
+                    <div class="step-node" id="stNode4">
+                        <div class="node-circle">4</div>
+                        <div class="node-content">
+                            <strong>Vision Transformer</strong>
+                            <small>256 Token Attention</small>
+                        </div>
+                    </div>
+                    <div class="node-connector" id="stConn4"></div>
+                    <div class="step-node" id="stNode5">
+                        <div class="node-circle">5</div>
+                        <div class="node-content">
+                            <strong>U-Net Decoder</strong>
+                            <small>Binary Mask Generation</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Studio -->
+            <div class="results-viewer" id="resultsViewer">
+                <div class="results-viewer-header">
+                    <div class="rv-title-box">
+                        <h3>Inference Results</h3>
+                        <span class="rv-sub">Siamese CNN + ViT Output • 128 × 128 Pixels (10m Resolution)</span>
+                    </div>
+
+                    <!-- View Switcher Tabs -->
+                    <div class="rv-tabs">
+                        <button class="tab-btn active" data-view="grid" onclick="switchResultView('grid')">
+                            2×2 Comparison Grid
+                        </button>
+                        <button class="tab-btn" data-view="wipe" onclick="switchResultView('wipe')">
+                            Split Wipe Slider
+                        </button>
+                        <button class="tab-btn" data-view="mask" onclick="switchResultView('mask')">
+                            Change Mask Only
+                        </button>
+                        <button class="tab-btn" data-view="overlay" onclick="switchResultView('overlay')">
+                            Alpha Overlay
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2x2 View Grid -->
+                <div class="grid-2x2" id="grid2x2">
+                    <div class="panel-box">
+                        <div class="panel-head">
+                            <span class="p-tag">T1 REFERENCE</span>
+                            <span class="p-meta">Baseline RGB</span>
+                        </div>
+                        <div class="panel-canvas">
+                            <img id="resT1Img" src="/static/samples/sample_1_t1.png" alt="T1 Reference Image">
+                        </div>
+                    </div>
+
+                    <div class="panel-box">
+                        <div class="panel-head">
+                            <span class="p-tag t2-tag">T2 OBSERVATION</span>
+                            <span class="p-meta">Follow-up RGB</span>
+                        </div>
+                        <div class="panel-canvas">
+                            <img id="resT2Img" src="/static/samples/sample_1_t2.png" alt="T2 Observation Image">
+                        </div>
+                    </div>
+
+                    <div class="panel-box highlight-border">
+                        <div class="panel-head">
+                            <span class="p-tag change-tag">CHANGE MASK (PREDICTED)</span>
+                            <span class="p-meta">Sigmoid &gt; 0.5 Threshold</span>
+                        </div>
+                        <div class="panel-canvas change-canvas-bg">
+                            <img id="resChangeImg" src="/static/predictions/change_map.png" onerror="this.src='/static/assets/change_mask.png'" alt="Predicted Change Mask">
+                        </div>
+                    </div>
+
+                    <div class="panel-box highlight-border">
+                        <div class="panel-head">
+                            <span class="p-tag overlay-tag">OVERLAY MAP (T2 + CHANGE)</span>
+                            <span class="p-meta" id="opacityVal">65% Opacity</span>
+                        </div>
+                        <div class="panel-canvas">
+                            <canvas id="overlayCanvas" width="128" height="128"></canvas>
+                            <img id="resOverlayImg" src="/static/predictions/overlay.png" onerror="this.style.display='none'" alt="Change Overlay" style="display: none;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wipe Slider View -->
+                <div class="wipe-container hidden" id="wipeView">
+                    <div class="wipe-wrapper" id="wipeWrapper">
+                        <img id="wipeBefore" class="wipe-img before-img" src="/static/samples/sample_1_t1.png" alt="T1 Image Before">
+                        <img id="wipeAfter" class="wipe-img after-img" src="/static/predictions/overlay.png" onerror="this.src='/static/samples/sample_1_t2.png'" alt="T2 Overlay After">
+                        <div class="wipe-divider" id="wipeDivider">
+                            <div class="wipe-handle">
+                                <span>◀ ▶</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wipe-labels">
+                        <span>◀ Time T1 (Reference)</span>
+                        <span>Time T2 Overlay (Changed Regions Highlighted) ▶</span>
+                    </div>
+                </div>
+
+                <!-- Dynamic Opacity Slider -->
+                <div class="overlay-opacity-controls" id="overlayControls">
+                    <span class="ctrl-label">Change Mask Blend Opacity:</span>
+                    <input type="range" id="opacitySlider" min="0" max="100" value="65" oninput="updateOverlayOpacity(this.value)">
+                    <div class="legend-strip">
+                        <span class="leg-item"><span class="leg-color unchanged"></span> Stable Surface (Unchanged)</span>
+                        <span class="leg-item"><span class="leg-color changed"></span> New Urban Expansion / Built-up Shift</span>
+                    </div>
+                </div>
+
+                <!-- Quantification Analytics Strip -->
+                <div class="analytics-strip">
+                    <div class="analytic-item">
+                        <span class="a-label">Changed Pixels</span>
+                        <strong class="a-val" id="statPixels">--</strong>
+                        <span class="a-sub">out of 16,384 total</span>
+                    </div>
+                    <div class="analytic-item highlight">
+                        <span class="a-label">Expansion Ratio</span>
+                        <strong class="a-val" id="statPercentage">--%</strong>
+                        <span class="a-sub">Calculated scene footprint</span>
+                    </div>
+                    <div class="analytic-item">
+                        <span class="a-label">Model Confidence</span>
+                        <strong class="a-val" id="statConfidence">--%</strong>
+                        <span class="a-sub">Sigmoid probability</span>
+                    </div>
+                    <div class="analytic-item">
+                        <span class="a-label">Input Resolution</span>
+                        <strong class="a-val" id="statResolution">128 × 128</strong>
+                        <span class="a-sub">10m GSD (Sentinel-2)</span>
+                    </div>
+                    <div class="analytic-item">
+                        <span class="a-label">Evaluated Model</span>
+                        <strong class="a-val" id="statModel">Enhanced Siamese CNN + ViT</strong>
+                        <span class="a-sub">Primary Architecture</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- =====================================================
+         4. RESULTS DASHBOARD SECTION
+    ====================================================== -->
+    <section class="results-section" id="results">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">EXPERIMENTAL RESULTS</div>
+                <h2 class="section-title">Results Dashboard</h2>
+                <p class="section-desc">
+                    Quantitative test metrics evaluated strictly on 10 held-out, completely untouched OSCD benchmark scenes.
+                </p>
+            </div>
+
+            <!-- 5 Animated Number Counter Metric Cards -->
+            <div class="counter-metrics-grid">
+                <div class="metric-counter-card">
+                    <div class="counter-top">
+                        <span class="m-icon">🎯</span>
+                        <span class="m-badge">ACCURACY</span>
+                    </div>
+                    <div class="counter-number-box">
+                        <span class="counter-value" data-target="95.44">95.44</span><span class="counter-unit">%</span>
+                    </div>
+                    <div class="counter-label">Pixel Accuracy</div>
+                    <p class="counter-sub">Correct classification across both changed and unchanged background pixels.</p>
+                </div>
+
+                <div class="metric-counter-card">
+                    <div class="counter-top">
+                        <span class="m-icon">🔍</span>
+                        <span class="m-badge">PRECISION</span>
+                    </div>
+                    <div class="counter-number-box">
+                        <span class="counter-value" data-target="58.74">58.74</span><span class="counter-unit">%</span>
+                    </div>
+                    <div class="counter-label">Precision Score</div>
+                    <p class="counter-sub">Proportion of predicted urban changes that truly represent actual expansion.</p>
+                </div>
+
+                <div class="metric-counter-card">
+                    <div class="counter-top">
+                        <span class="m-icon">📡</span>
+                        <span class="m-badge">RECALL</span>
+                    </div>
+                    <div class="counter-number-box">
+                        <span class="counter-value" data-target="39.79">39.79</span><span class="counter-unit">%</span>
+                    </div>
+                    <div class="counter-label">Recall (True Positive Rate)</div>
+                    <p class="counter-sub">Ability of the model to detect subtle and sparse change pixels without omission.</p>
+                </div>
+
+                <div class="metric-counter-card highlight-emerald">
+                    <div class="counter-top">
+                        <span class="m-icon">⭐</span>
+                        <span class="m-badge badge-primary">F1 SCORE</span>
+                    </div>
+                    <div class="counter-number-box">
+                        <span class="counter-value" data-target="47.44">47.44</span><span class="counter-unit">%</span>
+                    </div>
+                    <div class="counter-label">Harmonic Mean (F1)</div>
+                    <p class="counter-sub">Primary balanced metric addressing acute class imbalance in satellite change detection.</p>
+                </div>
+
+                <div class="metric-counter-card highlight-teal">
+                    <div class="counter-top">
+                        <span class="m-icon">📐</span>
+                        <span class="m-badge badge-secondary">IOU</span>
+                    </div>
+                    <div class="counter-number-box">
+                        <span class="counter-value" data-target="31.10">31.10</span><span class="counter-unit">%</span>
+                    </div>
+                    <div class="counter-label">Intersection-over-Union</div>
+                    <p class="counter-sub">Jaccard index quantifying precise spatial overlap between prediction and ground truth.</p>
+                </div>
+            </div>
+
+            <!-- Distinct Evaluation Mode Banner -->
+            <div class="eval-mode-banner">
+                <div class="eval-badge">SCIENTIFIC RIGOR</div>
+                <div class="eval-desc">
+                    <strong>Untouched Test Set Evaluation Protocol:</strong> All metrics displayed above were measured strictly on the 10 official held-out OSCD test scenes without any spatial or temporal data leakage.
+                </div>
+            </div>
+
+            <!-- Interactive Benchmark Charts -->
+            <div class="charts-row">
+                <!-- F1 Score Chart -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div>
+                            <h4 class="chart-title">Model Comparison: F1 Score (%)</h4>
+                            <span class="chart-sub">Comparing the five candidate hybrid architectures</span>
+                        </div>
+                        <span class="chart-tag">Validation Benchmark</span>
+                    </div>
+                    <div class="chart-canvas-box">
+                        <canvas id="chartF1" height="240"></canvas>
+                    </div>
+                </div>
+
+                <!-- IoU Chart -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div>
+                            <h4 class="chart-title">Model Comparison: IoU (%)</h4>
+                            <span class="chart-sub">Intersection-over-Union across candidate architectures</span>
+                        </div>
+                        <span class="chart-tag">Validation Benchmark</span>
+                    </div>
+                    <div class="chart-canvas-box">
+                        <canvas id="chartIoU" height="240"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comparison Table: Five Required Algorithms -->
+            <div class="table-card">
+                <div class="table-header-strip">
+                    <h4>Quantitative Comparison of the Five Required Hybrid Algorithms</h4>
+                    <span class="table-sub">Direct empirical evaluation under identical OSCD Sentinel-2 experimental conditions</span>
+                </div>
+                <table class="benchmark-table">
+                    <thead>
+                        <tr>
+                            <th>Model Architecture</th>
+                            <th>Core Mechanism</th>
+                            <th>F1 Score</th>
+                            <th>IoU</th>
+                            <th>Performance Standing</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="row-highlight">
+                            <td><strong>Siamese CNN + Vision Transformer</strong></td>
+                            <td>Shared Siamese Conv + 2-Layer ViT Difference Attention</td>
+                            <td class="num-bold">45.93%</td>
+                            <td class="num-bold">29.81%</td>
+                            <td><span class="badge-standing">Strongest Base Architecture</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Swin Transformer + U-Net</strong></td>
+                            <td>Hierarchical Shifted-Window Attention + Conv Decoder</td>
+                            <td class="num-bold">39.18%</td>
+                            <td>24.36%</td>
+                            <td>Hierarchical Context</td>
+                        </tr>
+                        <tr>
+                            <td><strong>U-Net + Transformer</strong></td>
+                            <td>Bottleneck Self-Attention + Concatenated Early Fusion</td>
+                            <td>34.23%</td>
+                            <td>20.65%</td>
+                            <td>Bottleneck Fusion</td>
+                        </tr>
+                        <tr>
+                            <td><strong>CNN + Change Detection Network</strong></td>
+                            <td>Multi-scale Conv Feature Difference Blocks</td>
+                            <td>32.00%</td>
+                            <td>19.04%</td>
+                            <td>Pure CNN Baseline</td>
+                        </tr>
+                        <tr>
+                            <td><strong>ResNet + LSTM</strong></td>
+                            <td>Residual Feature Extractor + Recurrent ConvLSTM</td>
+                            <td>2.48%</td>
+                            <td>1.25%</td>
+                            <td>Recurrent Bottleneck</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Separate Enhancement Experiment Card -->
+            <div class="enhancement-highlight-card">
+                <div class="enh-header">
+                    <span class="enh-badge">SEPARATE OPTIMIZATION EXPERIMENT</span>
+                    <h3>Enhanced Siamese CNN + Vision Transformer</h3>
+                </div>
+                <p class="enh-text">
+                    <strong>Experimental Clarification:</strong> Enhancement is an optimization experiment applied specifically to our best-performing approach (Siamese CNN + ViT) via noise-robust spatial and spectral augmentation. It is evaluated as an enhancement on that specific architecture, not as a sixth required algorithm.
+                </p>
+                <div class="enh-stats-row">
+                    <div class="enh-stat">
+                        <span>Original Siamese CNN + ViT F1</span>
+                        <strong>45.93%</strong>
+                    </div>
+                    <div class="enh-stat arrow">➔</div>
+                    <div class="enh-stat highlight">
+                        <span>Enhanced Siamese CNN + ViT F1</span>
+                        <strong>47.44%</strong>
+                    </div>
+                    <div class="enh-stat">
+                        <span>Original IoU</span>
+                        <strong>29.81%</strong>
+                    </div>
+                    <div class="enh-stat arrow">➔</div>
+                    <div class="enh-stat highlight">
+                        <span>Enhanced IoU</span>
+                        <strong>31.10%</strong>
+                    </div>
+                    <div class="enh-stat">
+                        <span>Augmentation Protocol</span>
+                        <strong>Noise-Robust Spatial + Spectral</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- =====================================================
+         5. MODEL ARCHITECTURE SECTION
+    ====================================================== -->
+    <section class="architecture-section" id="architecture">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">NEURAL ARCHITECTURE</div>
+                <h2 class="section-title">Model Architecture</h2>
+                <p class="section-desc">
+                    Structural design combining shared Siamese convolutional encoders, temporal feature difference, multi-head Vision Transformer attention, and U-Net spatial reconstruction.
+                </p>
+            </div>
+
+            <!-- Architectural Flow ASCII / Visual Box -->
+            <div class="arch-flow-concept">
+                <div class="af-box">
+                    <div class="af-input">T1 Satellite</div>
+                    <div class="af-arrow">──➔</div>
+                    <div class="af-encoder">Shared Siamese CNN Encoder</div>
+                    <div class="af-branch-top">┐</div>
+                </div>
+                <div class="af-center-merge">
+                    <div class="af-diff-badge">├─➔ Feature Difference |F1 − F2|</div>
+                    <div class="af-arrow-down">↓</div>
+                    <div class="af-transformer">Vision Transformer (2-Layer Multi-Head Self Attention)</div>
+                    <div class="af-arrow-down">↓</div>
+                    <div class="af-decoder">U-Net Decoder (Skip Connections + 4-Stage Upsampling)</div>
+                    <div class="af-arrow-down">↓</div>
+                    <div class="af-output">Binary Change Map (1 × 128 × 128)</div>
+                </div>
+                <div class="af-box">
+                    <div class="af-input">T2 Satellite</div>
+                    <div class="af-arrow">──➔</div>
+                    <div class="af-encoder">Shared Siamese CNN Encoder</div>
+                    <div class="af-branch-bottom">┘</div>
+                </div>
+            </div>
+
+            <!-- High-Fidelity Architecture SVG Schematic -->
+            <div class="diagram-wrapper">
+                <div class="diagram-toolbar">
+                    <span class="toolbar-title">Model Topology: 767,777 Parameters • 13 Input Bands • 256 Transformer Tokens</span>
+                    <span class="badge-tech">PyTorch 2.14</span>
+                </div>
+
+                <div class="diagram-svg-box">
+                    <svg viewBox="0 0 920 440" class="arch-svg">
+                        <defs>
+                            <linearGradient id="cnnGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#142338" />
+                                <stop offset="100%" stop-color="#1c3350" />
+                            </linearGradient>
+                            <linearGradient id="vitGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#0f3d2e" />
+                                <stop offset="100%" stop-color="#1e5e45" />
+                            </linearGradient>
+                            <linearGradient id="decGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#1e2c40" />
+                                <stop offset="100%" stop-color="#2a3f5a" />
+                            </linearGradient>
+                        </defs>
+
+                        <!-- Inputs -->
+                        <rect x="20" y="50" width="130" height="70" rx="8" fill="#101C2E" stroke="#5DBB63" stroke-width="1.5" />
+                        <text x="85" y="80" fill="#F5F7FA" font-size="13" font-weight="bold" text-anchor="middle">Input T1</text>
+                        <text x="85" y="100" fill="#94A3B8" font-size="11" text-anchor="middle">13 × 128 × 128</text>
+
+                        <rect x="20" y="180" width="130" height="70" rx="8" fill="#101C2E" stroke="#5DBB63" stroke-width="1.5" />
+                        <text x="85" y="210" fill="#F5F7FA" font-size="13" font-weight="bold" text-anchor="middle">Input T2</text>
+                        <text x="85" y="230" fill="#94A3B8" font-size="11" text-anchor="middle">13 × 128 × 128</text>
+
+                        <!-- Shared Siamese CNN -->
+                        <rect x="200" y="30" width="160" height="240" rx="10" fill="url(#cnnGrad)" stroke="rgba(255,255,255,0.15)" />
+                        <text x="280" y="55" fill="#54C7B0" font-size="12" font-weight="bold" text-anchor="middle">SHARED SIAMESE CNN</text>
+
+                        <rect x="215" y="70" width="130" height="40" rx="6" fill="#101C2E" stroke="rgba(255,255,255,0.08)" />
+                        <text x="280" y="90" fill="#F5F7FA" font-size="11" text-anchor="middle">Conv1: 13 → 32</text>
+                        <text x="280" y="104" fill="#94A3B8" font-size="9" text-anchor="middle">128 × 128</text>
+
+                        <rect x="215" y="125" width="130" height="40" rx="6" fill="#101C2E" stroke="rgba(255,255,255,0.08)" />
+                        <text x="280" y="145" fill="#F5F7FA" font-size="11" text-anchor="middle">Conv2: 32 → 64</text>
+                        <text x="280" y="159" fill="#94A3B8" font-size="9" text-anchor="middle">64 × 64</text>
+
+                        <rect x="215" y="180" width="130" height="40" rx="6" fill="#101C2E" stroke="rgba(255,255,255,0.08)" />
+                        <text x="280" y="200" fill="#F5F7FA" font-size="11" text-anchor="middle">Conv3: 64 → 128</text>
+                        <text x="280" y="214" fill="#94A3B8" font-size="9" text-anchor="middle">32 × 32</text>
+
+                        <text x="280" y="252" fill="#5DBB63" font-size="10" text-anchor="middle">Shared Weights</text>
+
+                        <!-- Arrows from T1/T2 to CNN -->
+                        <line x1="150" y1="85" x2="200" y2="85" stroke="#5DBB63" stroke-width="2" />
+                        <line x1="150" y1="215" x2="200" y2="215" stroke="#5DBB63" stroke-width="2" />
+
+                        <!-- Absolute Feature Difference -->
+                        <rect x="400" y="100" width="130" height="100" rx="8" fill="#101C2E" stroke="#54C7B0" stroke-width="1.5" />
+                        <text x="465" y="125" fill="#54C7B0" font-size="11" font-weight="bold" text-anchor="middle">TEMPORAL DIFF</text>
+                        <text x="465" y="155" fill="#F5F7FA" font-size="16" font-weight="bold" text-anchor="middle">|F1 − F2|</text>
+                        <text x="465" y="180" fill="#94A3B8" font-size="10" text-anchor="middle">Multi-Scale (Diff1..3)</text>
+
+                        <line x1="360" y1="150" x2="400" y2="150" stroke="#54C7B0" stroke-width="2" />
+
+                        <!-- Vision Transformer -->
+                        <rect x="560" y="60" width="150" height="180" rx="10" fill="url(#vitGrad)" stroke="#5DBB63" stroke-width="1.5" />
+                        <text x="635" y="85" fill="#5DBB63" font-size="12" font-weight="bold" text-anchor="middle">VISION TRANSFORMER</text>
+                        <text x="635" y="105" fill="#F5F7FA" font-size="11" text-anchor="middle">Adaptive Pool: 16 × 16</text>
+                        <text x="635" y="125" fill="#F5F7FA" font-size="11" text-anchor="middle">256 Tokens (128-D)</text>
+                        <text x="635" y="145" fill="#94A3B8" font-size="10" text-anchor="middle">+ Positional Embeddings</text>
+                        <rect x="575" y="160" width="120" height="40" rx="5" fill="#0B1424" stroke="rgba(255,255,255,0.1)" />
+                        <text x="635" y="178" fill="#54C7B0" font-size="10" font-weight="bold" text-anchor="middle">2-Layer Transformer</text>
+                        <text x="635" y="192" fill="#94A3B8" font-size="9" text-anchor="middle">4-Head Self-Attention</text>
+
+                        <line x1="530" y1="150" x2="560" y2="150" stroke="#5DBB63" stroke-width="2" />
+
+                        <!-- U-Net Decoder -->
+                        <rect x="740" y="50" width="150" height="200" rx="10" fill="url(#decGrad)" stroke="rgba(255,255,255,0.15)" />
+                        <text x="815" y="75" fill="#54C7B0" font-size="12" font-weight="bold" text-anchor="middle">U-NET DECODER</text>
+                        <text x="815" y="100" fill="#F5F7FA" font-size="11" text-anchor="middle">Transformer + Skip</text>
+                        <text x="815" y="125" fill="#F5F7FA" font-size="11" text-anchor="middle">Up1: 128 → 64</text>
+                        <text x="815" y="150" fill="#F5F7FA" font-size="11" text-anchor="middle">Up2: 64 → 32</text>
+                        <text x="815" y="175" fill="#F5F7FA" font-size="11" text-anchor="middle">Final Conv: 32 → 1</text>
+                        <text x="815" y="200" fill="#5DBB63" font-size="11" font-weight="bold" text-anchor="middle">Sigmoid Threshold</text>
+
+                        <line x1="710" y1="150" x2="740" y2="150" stroke="#54C7B0" stroke-width="2" />
+
+                        <!-- Output -->
+                        <rect x="740" y="290" width="150" height="60" rx="8" fill="#101C2E" stroke="#5DBB63" stroke-width="2" />
+                        <text x="815" y="315" fill="#5DBB63" font-size="12" font-weight="bold" text-anchor="middle">BINARY CHANGE MAP</text>
+                        <text x="815" y="335" fill="#F5F7FA" font-size="11" text-anchor="middle">1 × 128 × 128</text>
+
+                        <line x1="815" y1="250" x2="815" y2="290" stroke="#5DBB63" stroke-width="2" />
+
+                        <!-- Skip Connections -->
+                        <path d="M 465 100 L 465 20 L 770 20 L 770 50" fill="none" stroke="#94A3B8" stroke-dasharray="4,4" stroke-width="1.5" />
+                        <text x="610" y="15" fill="#94A3B8" font-size="9" text-anchor="middle">CNN Skip Connection Fusion (Diff1, Diff2)</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Component Explanations Grid -->
+            <div class="arch-components-grid">
+                <div class="arch-comp-card">
+                    <div class="acc-badge">COMPONENT 1</div>
+                    <h4>Shared Weights Siamese CNN</h4>
+                    <p>Applies identical convolutional kernels across both T1 and T2 multi-spectral inputs, projecting 13 raw bands into an aligned feature representation without parameter bloat.</p>
+                </div>
+
+                <div class="arch-comp-card">
+                    <div class="acc-badge">COMPONENT 2</div>
+                    <h4>Temporal Feature Difference (|F1 − F2|)</h4>
+                    <p>Computes absolute pixel-level difference between aligned feature tensors across three spatial scales, isolating subtle radiance discrepancies caused by urban construction.</p>
+                </div>
+
+                <div class="arch-comp-card">
+                    <div class="acc-badge">COMPONENT 3</div>
+                    <h4>Vision Transformer Global Context</h4>
+                    <p>Processes 256 tokens (128 dimensions each) through 2-layer multi-head self-attention, modeling macroscopic spatial inter-dependencies across the entire scene without recurrent bottleneck.</p>
+                </div>
+
+                <div class="arch-comp-card">
+                    <div class="acc-badge">COMPONENT 4</div>
+                    <h4>U-Net Spatial Reconstruction</h4>
+                    <p>Combines transformer global features with high-resolution CNN skip connections across 4 upsampling stages, restoring fine structural edges and building perimeters.</p>
+                </div>
+
+                <div class="arch-comp-card">
+                    <div class="acc-badge">COMPONENT 5</div>
+                    <h4>Binary Change Map Output</h4>
+                    <p>Applies a final 1×1 convolution with sigmoid activation thresholded at 0.5 to produce a calibrated binary segmentation mask distinguishing changed pixels from stable terrain.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- =====================================================
+         6. FIVE HYBRID MODELS SECTION
+    ====================================================== -->
+    <section class="models-section" id="models">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">ALGORITHMIC BENCHMARK</div>
+                <h2 class="section-title">Five Hybrid Models Evaluated</h2>
+                <p class="section-desc">
+                    Five distinct hybrid deep learning architectures investigated under identical OSCD 13-band Sentinel-2 experimental protocols. Numerical metrics reflect empirical performance.
+                </p>
+            </div>
+
+            <div class="models-grid-five">
+                <!-- Model 1: Siamese CNN + Vision Transformer -->
+                <div class="model-card">
+                    <div class="model-card-top">
+                        <span class="m-card-badge">MODEL 1</span>
+                        <span class="m-card-f1">F1: 45.93%</span>
+                    </div>
+                    <h3 class="model-title">Siamese CNN + Vision Transformer</h3>
+                    <p class="model-meta">Shared Siamese CNN Encoder • Absolute Difference • 2-Layer ViT • U-Net Decoder</p>
+                    <div class="model-body">
+                        <p>Combines convolutional inductive bias for multi-spectral patch extraction with a 2-layer multi-head Vision Transformer on temporal feature differences.</p>
+                    </div>
+                    <div class="model-metrics-row">
+                        <div class="mm-item">
+                            <span>F1 Score</span>
+                            <strong>45.93%</strong>
+                        </div>
+                        <div class="mm-item">
+                            <span>IoU</span>
+                            <strong>29.81%</strong>
+                        </div>
+                        <div class="mm-item">
+                            <span>Parameters</span>
+                            <strong>767,777</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Model 2: U-Net + Transformer -->
+                <div class="model-card">
+                    <div class="model-card-top">
+                        <span class="m-card-badge">MODEL 2</span>
+                        <span class="m-card-f1">F1: 34.23%</span>
+                    </div>
+                    <h3 class="model-title">U-Net + Transformer</h3>
+                    <p class="model-meta">Early Channel Concatenation • Bottleneck Self-Attention • Skip Connections</p>
+                    <div class="model-body">
+                        <p>Replaces the standard deepest bottleneck convolution of U-Net with self-attention layers to aggregate global semantic context from concatenated inputs.</p>
+                    </div>
+                    <div class="model-metrics-row">
+                        <div class="mm-item">
+                            <span>F1 Score</span>
+                            <strong>34.23%</strong>
+                        </div>
+                        <div class="mm-item">
+                            <span>IoU</span>
+                            <strong>20.65%</strong>
+                        </div>
+                        <div class="mm-item">
+                            <span>Parameters</span>
+                            <strong>1,120,449</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Model 3: ResNet + LSTM -->
+                <div class="model-card">
+                    <div class="model-card-top">
+                        <span class="m-card-badge">MODEL 3</span>
+                        <span class="m-card-f1">F1: 2.48%</span>
+                    </div>
+                    <h3 class="model-title">ResNet + LSTM</h3>
+                    <p class="model-meta">Residual Feature Extractor • Bidirectional ConvLSTM Cell • Sequential Bottleneck</p>
+                    <div class="model-body">
+                        <p>Extracts deep CNN representations from T1 and T2 sequentially into recurrent ConvLSTM cells; suffers from vanishing temporal gradients on bi-temporal pairs.</p>
+                    </div>
+                    <div class="model-metrics-row">
+                        <div class="mm-item">
+                            <span>F1 Score</span>
+                            <strong>2.48%</strong>
+                        </div>
+                        <div class="mm-item">
+                            <span>IoU</span>
+                            <strong>1.25%</strong>
+                        </div>
+                        <div class="mm-item">
+                            <span>Parameters</span>
+                            <strong>2,845,313</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Model 4: CNN + Change Detection Network -->
+                <div class="model-card">
+                    <div class="model-card-top">
+                        <span class="m-card-badge">MODEL 4</span>
+                        <span class="m-card-f1">F1: 32.00%</span>
+                    </div>
+                    <h3 class="model-title">CNN + Change Detection Network</h3>
+                    <p class="model-meta">Dual-Branch CNN • Multi-Scale Difference Blocks • Convolutional Classifier</p>
+                    <div class="model-body">
+                        <p>A pure convolutional baseline computing multi-scale differential feature maps; effective for coarse boundaries but lacks long-range contextual attention.</p>
+                    </div>
+                    <div class="model-metrics-row">
+                        <div class="mm-item">
+                            <span>F1 Score</span>
+                            <strong>32.00%</strong>
+                        </div>
+                        <div class="mm-item">
+                            <span>IoU</span>
+                            <strong>19.04%</strong>
+                        </div>
+                        <div class="mm-item">
+                            <span>Parameters</span>
+                            <strong>542,881</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Model 5: Swin Transformer + U-Net -->
+                <div class="model-card">
+                    <div class="model-card-top">
+                        <span class="m-card-badge">MODEL 5</span>
+                        <span class="m-card-f1">F1: 39.18%</span>
+                    </div>
+                    <h3 class="model-title">Swin Transformer + U-Net</h3>
+                    <p class="model-meta">Hierarchical Shifted-Window Attention • Patch Merging • U-Net Conv Decoder</p>
+                    <div class="model-body">
+                        <p>Employs shifted local windows for linear-complexity multi-scale attention; achieves strong representation but requires higher compute budget.</p>
+                    </div>
+                    <div class="model-metrics-row">
+                        <div class="mm-item">
+                            <span>F1 Score</span>
+                            <strong>39.18%</strong>
+                        </div>
+                        <div class="mm-item">
+                            <span>IoU</span>
+                            <strong>24.36%</strong>
+                        </div>
+                        <div class="mm-item">
+                            <span>Parameters</span>
+                            <strong>1,840,129</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- =====================================================
+         7. EXPERIMENTAL WORKFLOW SECTION
+    ====================================================== -->
+    <section class="methodology-section" id="workflow">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">EXPERIMENTAL WORKFLOW</div>
+                <h2 class="section-title">Research Methodology & Workflow</h2>
+                <p class="section-desc">
+                    Comprehensive 10-stage experimental progression from raw multi-spectral data curation to final untouched test evaluation.
+                </p>
+            </div>
+
+            <!-- 10-Stage Visual Timeline -->
+            <div class="workflow-timeline-container">
+                <div class="wf-step-card">
+                    <div class="wf-step-marker">01</div>
+                    <div class="wf-step-body">
+                        <span class="wf-step-badge">DATA CURATION</span>
+                        <h4>Dataset Loading</h4>
+                        <p>14 training scenes and 10 untouched test scenes from the official ONERA OSCD benchmark utilizing European Space Agency Sentinel-2 constellation observations.</p>
+                        <div class="wf-chips"><span>13 Spectral Bands</span><span>Level-1C TOA</span><span>24 Global Scenes</span></div>
+                    </div>
+                </div>
+
+                <div class="wf-step-card">
+                    <div class="wf-step-marker">02</div>
+                    <div class="wf-step-body">
+                        <span class="wf-step-badge">DATA PREPARATION</span>
+                        <h4>Preprocessing</h4>
+                        <p>Standardized top-of-atmosphere reflectance normalization (dividing by 10,000) and extraction of non-overlapping 128×128 pixel patches aligned with ground-truth masks.</p>
+                        <div class="wf-chips"><span>128×128 Patches</span><span>Reflectance [0, 1]</span><span>10m Spatial GSD</span></div>
+                    </div>
+                </div>
+
+                <div class="wf-step-card">
+                    <div class="wf-step-marker">03</div>
+                    <div class="wf-step-body">
+                        <span class="wf-step-badge">RIGOR & INTEGRITY</span>
+                        <h4>Leakage Checks</h4>
+                        <p>Spatial coordinates and tile bounds verified to prevent any geographic overlap or data contamination between training partitions and evaluation sets.</p>
+                        <div class="wf-chips"><span>Zero Tile Overlap</span><span>Coordinate Verification</span><span>Disjoint Geography</span></div>
+                    </div>
+                </div>
+
+                <div class="wf-step-card">
+                    <div class="wf-step-marker">04</div>
+                    <div class="wf-step-body">
+                        <span class="wf-step-badge">PARTITIONING</span>
+                        <h4>Train / Validation / Test Split</h4>
+                        <p>Scene-level spatial partitioning keeping 10 complete regional scenes held out as an official untouched test set.</p>
+                        <div class="wf-chips"><span>Scene-Level Split</span><span>14 Train / 10 Test</span><span>Unseen Geography</span></div>
+                    </div>
+                </div>
+
+                <div class="wf-step-card highlight-step">
+                    <div class="wf-step-marker">05</div>
+                    <div class="wf-step-body">
+                        <span class="wf-step-badge badge-completed">COMPLETED VALIDATION</span>
+                        <h4>10-Fold Cross Validation</h4>
+                        <p>Executed 10-fold scene-level cross-validation across spatially separated continental scenes to measure variance across environmental topologies.</p>
+                        <div class="wf-chips"><span>Mean F1: 24.88% ± 10.96%</span><span>Mean IoU: 15.90% ± 8.10%</span><span>Completed</span></div>
+                    </div>
+                </div>
+
+                <div class="wf-step-card experiment-step">
+                    <div class="wf-step-marker">06</div>
+                    <div class="wf-step-body">
+                        <span class="wf-step-badge badge-next">EXPERIMENTAL STAGE</span>
+                        <h4>GAN Augmentation Experiment</h4>
+                        <p><strong>Experimental Stage:</strong> Adversarial data synthesis was experimentally investigated for synthetic change mask generation, but was not retained as the final enhancement.</p>
+                        <div class="wf-chips"><span>Adversarial Synthesis</span><span>Not Retained in Final</span><span>Experimental Only</span></div>
+                    </div>
+                </div>
+
+                <div class="wf-step-card">
+                    <div class="wf-step-marker">07</div>
+                    <div class="wf-step-body">
+                        <span class="wf-step-badge">OPTIMIZATION</span>
+                        <h4>Initial Model Training</h4>
+                        <p>Initial optimization using compound BCE + Dice Loss objective with AdamW optimizer (learning rate 1e-4) across 50 epochs.</p>
+                        <div class="wf-chips"><span>BCE + Dice Loss</span><span>AdamW Optimizer</span><span>Weight Decay 1e-4</span></div>
+                    </div>
+                </div>
+
+                <div class="wf-step-card">
+                    <div class="wf-step-marker">08</div>
+                    <div class="wf-step-body">
+                        <span class="wf-step-badge">DIAGNOSTICS</span>
+                        <h4>Overfitting / Underfitting Detection</h4>
+                        <p>Observed generalization drop on held-out scenes characterized by seasonal vegetation phenology shifts and arid soil-reflectance changes.</p>
+                        <div class="wf-chips"><span>Phenology Interference</span><span>Atmospheric Noise</span><span>Generalization Drop</span></div>
+                    </div>
+                </div>
+
+                <div class="wf-step-card highlight-step">
+                    <div class="wf-step-marker">09</div>
+                    <div class="wf-step-body">
+                        <span class="wf-step-badge badge-completed">FINAL ENHANCEMENT</span>
+                        <h4>Correction + Retraining</h4>
+                        <p>Engineered noise-robust spatial augmentations (flips, 90° rotations) and spectral perturbations (Gaussian noise, band scaling, independent T1/T2 jitter).</p>
+                        <div class="wf-chips"><span>Spatial Flips</span><span>Spectral Jitter</span><span>Gaussian Robustness</span></div>
+                    </div>
+                </div>
+
+                <div class="wf-step-card highlight-step">
+                    <div class="wf-step-marker">10</div>
+                    <div class="wf-step-body">
+                        <span class="wf-step-badge badge-completed">FINAL VERIFICATION</span>
+                        <h4>Final Test Evaluation</h4>
+                        <p>Evaluated on the 10 completely untouched official OSCD test scenes, confirming 95.44% Accuracy, 58.74% Precision, and 47.44% F1 Score.</p>
+                        <div class="wf-chips"><span>Accuracy: 95.44%</span><span>F1: 47.44%</span><span>IoU: 31.10%</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- =====================================================
+         8. 10-FOLD CROSS-VALIDATION SECTION
+    ====================================================== -->
+    <section class="cv-section" id="cross-validation">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">EMPIRICAL RIGOR</div>
+                <h2 class="section-title">10-Fold Scene-Level Cross-Validation</h2>
+                <p class="section-desc">
+                    Evaluation across spatially separated OSCD scenes. 10-fold scene-level cross-validation measures real-world performance variance across geographically diverse continental environments without spatial data leakage.
+                </p>
+            </div>
+
+            <!-- Summary Metric Cards -->
+            <div class="cv-summary-grid">
+                <div class="cv-summary-card highlight-f1">
+                    <div class="cv-card-top">
+                        <span class="cv-badge">COMPLETED VALIDATION</span>
+                        <span class="cv-fold-count">N = 10 Spatially Disjoint Folds</span>
+                    </div>
+                    <span class="cv-metric-label">Cross-Validation Mean F1 Score</span>
+                    <div class="cv-metric-main">
+                        <strong class="cv-metric-val">24.88%</strong>
+                        <span class="cv-metric-std">± 10.96%</span>
+                    </div>
+                    <p class="cv-metric-desc">High standard deviation reflects acute geographical variance between densely urbanized scenes and sparse agrarian scenes.</p>
+                </div>
+
+                <div class="cv-summary-card highlight-iou">
+                    <div class="cv-card-top">
+                        <span class="cv-badge">COMPLETED VALIDATION</span>
+                        <span class="cv-fold-count">Jaccard Index Metric</span>
+                    </div>
+                    <span class="cv-metric-label">Cross-Validation Mean IoU</span>
+                    <div class="cv-metric-main">
+                        <strong class="cv-metric-val">15.90%</strong>
+                        <span class="cv-metric-std">± 8.10%</span>
+                    </div>
+                    <p class="cv-metric-desc">Intersection-over-Union bounded by complex heterogeneous perimeter edges in extreme sparse-change folds.</p>
+                </div>
+            </div>
+
+            <!-- 10-Fold Variation Chart -->
+            <div class="cv-chart-card">
+                <div class="cv-chart-header">
+                    <div>
+                        <h4 class="cv-chart-title">Fold-to-Fold Performance Distribution (F1 & IoU)</h4>
+                        <span class="cv-chart-sub">Depiction of environmental heterogeneity across 10 disjoint scene folds</span>
+                    </div>
+                    <div class="cv-legend">
+                        <span class="legend-item"><span class="legend-dot dot-f1"></span> F1 Score (%)</span>
+                        <span class="legend-item"><span class="legend-dot dot-iou"></span> IoU (%)</span>
+                        <span class="legend-item"><span class="legend-line line-f1"></span> Mean F1 (24.88%)</span>
+                        <span class="legend-item"><span class="legend-line line-iou"></span> Mean IoU (15.90%)</span>
+                    </div>
+                </div>
+                <div class="cv-canvas-wrapper">
+                    <canvas id="chartCVFolds" height="260"></canvas>
+                </div>
+            </div>
+
+            <!-- Detailed Fold Breakdown & Comparison Grid -->
+            <div class="cv-details-grid">
+                <div class="cv-table-card">
+                    <h4 class="cv-subheading">Scene-Level Fold Breakdown</h4>
+                    <table class="cv-table">
+                        <thead>
+                            <tr>
+                                <th>Fold Index</th>
+                                <th>F1 Score</th>
+                                <th>IoU</th>
+                                <th>Scene Context & Characteristics</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="fold-num">Fold 1</span></td>
+                                <td class="num-bold">30.40%</td>
+                                <td>20.00%</td>
+                                <td>Suburban commercial periphery with moderate building infill</td>
+                            </tr>
+                            <tr>
+                                <td><span class="fold-num">Fold 2</span></td>
+                                <td class="num-bold">30.52%</td>
+                                <td>19.56%</td>
+                                <td>Industrial logistics expansion with distinct spectral contrast</td>
+                            </tr>
+                            <tr>
+                                <td><span class="fold-num">Fold 3</span></td>
+                                <td class="num-bold">21.70%</td>
+                                <td>12.90%</td>
+                                <td>Low-density parcel clearing in mixed agricultural terrain</td>
+                            </tr>
+                            <tr>
+                                <td><span class="fold-num">Fold 4</span></td>
+                                <td class="num-bold">27.15%</td>
+                                <td>16.77%</td>
+                                <td>Highway corridor construction and arterial road extension</td>
+                            </tr>
+                            <tr>
+                                <td><span class="fold-num">Fold 5</span></td>
+                                <td class="num-bold">20.10%</td>
+                                <td>12.51%</td>
+                                <td>Arid fringe development with subtle soil-to-structure shifts</td>
+                            </tr>
+                            <tr class="row-peak">
+                                <td><span class="fold-num peak">Fold 6 ★</span></td>
+                                <td class="num-bold highlight-green">45.19%</td>
+                                <td class="highlight-green">31.49%</td>
+                                <td><strong>Peak Fold:</strong> High-density urban sprawl with clear contrast</td>
+                            </tr>
+                            <tr class="row-challenging">
+                                <td><span class="fold-num dim">Fold 7</span></td>
+                                <td class="num-bold dim">10.17%</td>
+                                <td class="dim">5.60%</td>
+                                <td><strong>Challenging Scene:</strong> Highly sparse change (&lt;0.5% pixels)</td>
+                            </tr>
+                            <tr>
+                                <td><span class="fold-num">Fold 8</span></td>
+                                <td class="num-bold">35.18%</td>
+                                <td>23.84%</td>
+                                <td>Residential subdivision construction on former grassland</td>
+                            </tr>
+                            <tr>
+                                <td><span class="fold-num">Fold 9</span></td>
+                                <td class="num-bold">17.20%</td>
+                                <td>10.11%</td>
+                                <td>Vegetation phenology interference with localized road work</td>
+                            </tr>
+                            <tr class="row-challenging">
+                                <td><span class="fold-num dim">Fold 10</span></td>
+                                <td class="num-bold dim">11.23%</td>
+                                <td class="dim">6.23%</td>
+                                <td><strong>Challenging Scene:</strong> Minimal change amid high seasonal variance</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Comparison Card: Untouched Test vs 10-Fold CV -->
+                <div class="test-vs-cv-card">
+                    <div class="tvc-header">
+                        <div class="tvc-icon">⚖️</div>
+                        <div>
+                            <h4 class="tvc-title">Evaluation Comparison: Untouched Test vs. Cross-Validation</h4>
+                            <span class="tvc-subtitle">Understanding evaluation scopes across the OSCD dataset</span>
+                        </div>
+                    </div>
+
+                    <div class="tvc-metrics-comparison">
+                        <div class="tvc-column test-col">
+                            <span class="tvc-col-tag">UNTOUCHED TEST SET</span>
+                            <h5>Official Test Evaluation</h5>
+                            <span class="tvc-model">Enhanced Siamese CNN + ViT</span>
+                            <div class="tvc-stat-block">
+                                <div class="tvc-stat">
+                                    <span>F1 Score</span>
+                                    <strong>47.44%</strong>
+                                </div>
+                                <div class="tvc-stat">
+                                    <span>IoU</span>
+                                    <strong>31.10%</strong>
+                                </div>
+                            </div>
+                            <small class="tvc-detail">Evaluated on the 10 official held-out test scenes.</small>
+                        </div>
+
+                        <div class="tvc-vs-divider">
+                            <span>VS</span>
+                        </div>
+
+                        <div class="tvc-column cv-col">
+                            <span class="tvc-col-tag completed">COMPLETED 10-FOLD CV</span>
+                            <h5>Scene-Level Cross-Validation</h5>
+                            <span class="tvc-model">10 Spatially Disjoint Folds</span>
+                            <div class="tvc-stat-block">
+                                <div class="tvc-stat">
+                                    <span>Mean F1</span>
+                                    <strong>24.88% <small>±10.96%</small></strong>
+                                </div>
+                                <div class="tvc-stat">
+                                    <span>Mean IoU</span>
+                                    <strong>15.90% <small>±8.10%</small></strong>
+                                </div>
+                            </div>
+                            <small class="tvc-detail">Average across 10 disjoint scene-level partitions.</small>
+                        </div>
+                    </div>
+
+                    <div class="tvc-explanation-box">
+                        <p>
+                            <strong>Scientific Context:</strong> Cross-validation evaluates generalization across different held-out scenes, while the final test result is measured on the untouched official test set.
+                        </p>
+                        <p class="tvc-note">
+                            Note: Because cross-validation averages across individual challenging scenes with extreme class imbalance (such as Fold 7 and Fold 10 where changes occupy &lt;0.5% of the scene area), the CV mean naturally reflects this severe scene-level heterogeneity and is not directly interchangeable with the aggregate test evaluation.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- =====================================================
+         9. GENERALIZATION EXPERIMENT SECTION (TUE-CD)
+    ====================================================== -->
+    <section class="generalization-section" id="generalization">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">INDEPENDENT EXPERIMENT</div>
+                <h2 class="section-title">Cross-Dataset Generalization</h2>
+                <p class="section-desc">
+                    Assessing transferability of the hybrid Siamese CNN + Vision Transformer architecture on an external disaster change-detection domain.
+                </p>
+            </div>
+
+            <!-- Mandatory Disclaimer Banner -->
+            <div class="tue-disclaimer-card">
+                <div class="disclaimer-icon">⚠️</div>
+                <div class="disclaimer-text">
+                    <strong>Critical Dataset Distinction:</strong>
+                    TUE-CD is a separate building-damage change-detection dataset and is not part of the OSCD urban-expansion evaluation. It evaluates architectural structural adaptability from 13-band Sentinel-2 to very-high-resolution RGB WorldView-2 satellite imagery.
+                </div>
+            </div>
+
+            <div class="tue-content-grid">
+                <!-- Metrics Card -->
+                <div class="tue-metrics-box">
+                    <div class="tue-box-header">
+                        <span class="box-badge">TUE-CD EVALUATION (167 TEST PAIRS)</span>
+                        <h4>Overall Benchmark Performance</h4>
+                    </div>
+                    <div class="tue-grid-stats">
+                        <div class="tue-stat-card">
+                            <span class="tue-label">Accuracy</span>
+                            <strong class="tue-val">95.03%</strong>
+                        </div>
+                        <div class="tue-stat-card">
+                            <span class="tue-label">Precision</span>
+                            <strong class="tue-val">50.84%</strong>
+                        </div>
+                        <div class="tue-stat-card">
+                            <span class="tue-label">Recall</span>
+                            <strong class="tue-val">40.93%</strong>
+                        </div>
+                        <div class="tue-stat-card highlight">
+                            <span class="tue-label">F1 Score</span>
+                            <strong class="tue-val">43.50%</strong>
+                        </div>
+                        <div class="tue-stat-card highlight">
+                            <span class="tue-label">IoU</span>
+                            <strong class="tue-val">29.60%</strong>
+                        </div>
+                        <div class="tue-stat-card">
+                            <span class="tue-label">Sensor</span>
+                            <strong class="tue-val">WorldView-2</strong>
+                        </div>
+                    </div>
+
+                    <!-- Best Individual Sample Card -->
+                    <div class="tue-best-sample-card">
+                        <div class="best-sample-header">
+                            <span class="star-badge">⭐ BEST INDIVIDUAL TEST SAMPLE</span>
+                            <span class="sample-id">Sample ID: train(617).png</span>
+                        </div>
+                        <div class="best-sample-metrics">
+                            <div>
+                                <span>Sample F1:</span>
+                                <strong>89.96%</strong>
+                            </div>
+                            <div>
+                                <span>Sample IoU:</span>
+                                <strong>81.76%</strong>
+                            </div>
+                        </div>
+                        <p class="sample-clarification-note">
+                            <strong>Note:</strong> This represents the best individual test sample performance, not the overall test set average.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Qualitative Result Visual -->
+                <div class="tue-image-box">
+                    <div class="tue-box-header">
+                        <span class="box-badge">QUALITATIVE RESULT</span>
+                        <h4>TUE-CD Detected Damage Change</h4>
+                    </div>
+                    <div class="tue-img-wrapper">
+                        <img src="/tue-result-image" alt="TUE-CD Qualitative Change Detection Result" onerror="this.src='/static/assets/tue_cd_best_test_result_red_overlay.png'">
+                    </div>
+                    <div class="tue-img-caption">
+                        <span>Pre-Event RGB</span>
+                        <span>Post-Event RGB</span>
+                        <span>Ground Truth</span>
+                        <span>Predicted Damage (Red)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- =====================================================
+         10. LITERATURE & RESEARCH PAPERS SECTION
+    ====================================================== -->
+    <section class="literature-section" id="literature">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">THEORETICAL FOUNDATION</div>
+                <h2 class="section-title">Literature & Research Papers</h2>
+                <p class="section-desc">
+                    Foundational 2026 satellite change-detection research papers directly included in the project repository and informing our architectural formulation.
+                </p>
+            </div>
+
+            <div class="papers-accordion-list">
+                <!-- Paper 1 -->
+                <div class="paper-card" id="paper1">
+                    <div class="paper-header" onclick="togglePaper(1)">
+                        <div class="paper-title-area">
+                            <span class="paper-num-badge">PAPER 01 • 2026</span>
+                            <h4 class="paper-title-text">TranSiamUNet based transformer-augmented Siamese-U-Net for precise change detection in satellite imagery</h4>
+                            <span class="paper-authors">Farid Ali, Soha Safwat Labib, Ayat Mahmoud, Ibrahim Eldesouky Fattoh</span>
+                        </div>
+                        <div class="paper-expand-btn">
+                            <span class="expand-icon" id="paperIcon1">+</span>
+                        </div>
+                    </div>
+                    <div class="paper-details" id="paperBody1">
+                        <div class="paper-meta-strip">
+                            <span><strong>Journal:</strong> Scientific Reports (Nature Portfolio, 2026)</span>
+                            <span><strong>DOI:</strong> 10.1038/s41598-026-43164-w</span>
+                            <span><strong>File:</strong> papers/01.pdf</span>
+                        </div>
+                        <div class="paper-content-grid">
+                            <div class="paper-content-box">
+                                <h5>Key Idea</h5>
+                                <p>Proposes TranSiamUNet, augmenting a Siamese U-Net backbone with vision transformer self-attention mechanisms to effectively resolve the semantic gap between localized textural convolutions and macroscopic temporal scene shifts.</p>
+                            </div>
+                            <div class="paper-content-box highlight">
+                                <h5>Relevance to Our Approach</h5>
+                                <p>Directly validates our primary architecture combining shared Siamese convolutional encoders with a 2-layer multi-head Vision Transformer and U-Net decoder with skip connections for bi-temporal Sentinel-2 imagery.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Paper 2 -->
+                <div class="paper-card" id="paper2">
+                    <div class="paper-header" onclick="togglePaper(2)">
+                        <div class="paper-title-area">
+                            <span class="paper-num-badge">PAPER 02 • 2026</span>
+                            <h4 class="paper-title-text">Automated Urban Expansion and Land-Use Change Detection Using Deep Learning Ensembles on Sentinel-2 Imagery</h4>
+                            <span class="paper-authors">Emadoddin Hemmati, Niloofar Alizadeh, Fatemeh Mahmoudzadeh, Shahin Jafari, Hamed Amini Amirkolaee</span>
+                        </div>
+                        <div class="paper-expand-btn">
+                            <span class="expand-icon" id="paperIcon2">+</span>
+                        </div>
+                    </div>
+                    <div class="paper-details" id="paperBody2">
+                        <div class="paper-meta-strip">
+                            <span><strong>Publication:</strong> ISPRS Annals of Photogrammetry, Remote Sensing and Spatial Information Sciences (2026)</span>
+                            <span><strong>DOI:</strong> 10.5194/isprs-annals-X-4-W8-2025-349-2026</span>
+                            <span><strong>File:</strong> papers/02.pdf</span>
+                        </div>
+                        <div class="paper-content-grid">
+                            <div class="paper-content-box">
+                                <h5>Key Idea</h5>
+                                <p>Decomposes semantic land-use transitions into independent binary change-detection tasks evaluated across multi-spectral Sentinel-2 bands using specialized U-Net++ architectural variants.</p>
+                            </div>
+                            <div class="paper-content-box highlight">
+                                <h5>Relevance to Our Approach</h5>
+                                <p>Provides foundational justification for formulating Sentinel-2 urban expansion detection as a binary pixel-level segmentation challenge and benchmarking on multi-temporal spectral constellations.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Paper 3 -->
+                <div class="paper-card" id="paper3">
+                    <div class="paper-header" onclick="togglePaper(3)">
+                        <div class="paper-title-area">
+                            <span class="paper-num-badge">PAPER 03 • 2026</span>
+                            <h4 class="paper-title-text">S2C: A Noise-Resistant Difference Learning Framework for Unsupervised Change Detection in VHR Remote Sensing Images</h4>
+                            <span class="paper-authors">Lei Ding, Xibing Zuo, Haitao Guo, Jun Lu, Zhihui Gong, Xuanguang Liu, Jicang Lu</span>
+                        </div>
+                        <div class="paper-expand-btn">
+                            <span class="expand-icon" id="paperIcon3">+</span>
+                        </div>
+                    </div>
+                    <div class="paper-details" id="paperBody3">
+                        <div class="paper-meta-strip">
+                            <span><strong>Institution:</strong> Information Engineering University (2026)</span>
+                            <span><strong>Year:</strong> 2026</span>
+                            <span><strong>File:</strong> papers/03.pdf</span>
+                        </div>
+                        <div class="paper-content-grid">
+                            <div class="paper-content-box">
+                                <h5>Key Idea</h5>
+                                <p>Introduces a Semantic-to-Change (S2C) framework incorporating noise-resistant contrastive difference learning that translates implicit foundation representations into robust change masks without sensitivity to sensor noise.</p>
+                            </div>
+                            <div class="paper-content-box highlight">
+                                <h5>Relevance to Our Approach</h5>
+                                <p>Directly inspired our noise-robust spatial and spectral augmentation scheme (band scaling, Gaussian perturbation, and independent temporal jitter) which boosted test F1 from 45.93% to 47.44%.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Paper 4 -->
+                <div class="paper-card" id="paper4">
+                    <div class="paper-header" onclick="togglePaper(4)">
+                        <div class="paper-title-area">
+                            <span class="paper-num-badge">PAPER 04 • 2026</span>
+                            <h4 class="paper-title-text">MCD-Mamba: mamba-based framework for infrastructure change detection using multimodal satellite data</h4>
+                            <span class="paper-authors">Meruyert Kenzhebay, Mehak Khan, Abdul Hanan, Reza Arghandeh</span>
+                        </div>
+                        <div class="paper-expand-btn">
+                            <span class="expand-icon" id="paperIcon4">+</span>
+                        </div>
+                    </div>
+                    <div class="paper-details" id="paperBody4">
+                        <div class="paper-meta-strip">
+                            <span><strong>Area:</strong> Multimodal State-Space Geospatial Analytics (2026)</span>
+                            <span><strong>Year:</strong> 2026</span>
+                            <span><strong>File:</strong> papers/04.pdf</span>
+                        </div>
+                        <div class="paper-content-grid">
+                            <div class="paper-content-box">
+                                <h5>Key Idea</h5>
+                                <p>Explores selective state-space sequence modeling (Mamba) as a linear-complexity computational alternative to quadratic transformer self-attention for large-scale multimodal infrastructure change tracking.</p>
+                            </div>
+                            <div class="paper-content-box highlight">
+                                <h5>Relevance to Our Approach</h5>
+                                <p>Serves as a cutting-edge architectural benchmark for long-range sequence modeling, contextualizing our 256-token Vision Transformer attention within modern sequence-modeling paradigms.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Paper 5 -->
+                <div class="paper-card" id="paper5">
+                    <div class="paper-header" onclick="togglePaper(5)">
+                        <div class="paper-title-area">
+                            <span class="paper-num-badge">PAPER 05 • 2026</span>
+                            <h4 class="paper-title-text">A GCN-Mamba-based model for remote sensing change detection using local-global feature aggregation and dual-perspective adaptive fusion</h4>
+                            <span class="paper-authors">Xueli Chang, Hongyang Dai, Guangqi Xie, Ting Bai, Liqiao Tian</span>
+                        </div>
+                        <div class="paper-expand-btn">
+                            <span class="expand-icon" id="paperIcon5">+</span>
+                        </div>
+                    </div>
+                    <div class="paper-details" id="paperBody5">
+                        <div class="paper-meta-strip">
+                            <span><strong>Area:</strong> Remote Sensing Machine Intelligence (2026)</span>
+                            <span><strong>Year:</strong> 2026</span>
+                            <span><strong>File:</strong> papers/05.pdf</span>
+                        </div>
+                        <div class="paper-content-grid">
+                            <div class="paper-content-box">
+                                <h5>Key Idea</h5>
+                                <p>Combines Graph Convolutional Networks (GCN) with state-space models to simultaneously capture irregular spatial topological relationships and long-range temporal change dynamics.</p>
+                            </div>
+                            <div class="paper-content-box highlight">
+                                <h5>Relevance to Our Approach</h5>
+                                <p>Offers theoretical insight into spatial topology modeling versus convolutional inductive bias, reinforcing our design choice of shared convolutional backbones paired with attention mechanisms.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- =====================================================
+         11. TECHNOLOGY STACK SECTION
+    ====================================================== -->
+    <section class="tech-stack-section" id="tech-stack">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">ENGINEERING FOUNDATION</div>
+                <h2 class="section-title">Technology Stack</h2>
+                <p class="section-desc">
+                    Research-grade frameworks, scientific computing libraries, and satellite constellations powering the UrbanScope AI platform.
+                </p>
+            </div>
+
+            <div class="tech-grid">
+                <div class="tech-card">
+                    <div class="tech-icon-circle">🐍</div>
+                    <h4>Python</h4>
+                    <p>Core programming runtime for mathematical modeling, geospatial preprocessing, and web services.</p>
+                    <span class="tech-badge">Language</span>
+                </div>
+
+                <div class="tech-card">
+                    <div class="tech-icon-circle">🔥</div>
+                    <h4>PyTorch</h4>
+                    <p>Deep learning engine powering neural tensor graphs, GPU/CPU execution, and model backpropagation.</p>
+                    <span class="tech-badge">Deep Learning</span>
+                </div>
+
+                <div class="tech-card">
+                    <div class="tech-icon-circle">👁️</div>
+                    <h4>OpenCV & PIL</h4>
+                    <p>Image processing, multi-spectral band extraction, dynamic overlay blending, and raster manipulation.</p>
+                    <span class="tech-badge">Computer Vision</span>
+                </div>
+
+                <div class="tech-card">
+                    <div class="tech-icon-circle">🔢</div>
+                    <h4>NumPy</h4>
+                    <p>High-performance multi-dimensional array computing for 13-band Level-1C top-of-atmosphere tensors.</p>
+                    <span class="tech-badge">Scientific Computing</span>
+                </div>
+
+                <div class="tech-card">
+                    <div class="tech-icon-circle">⚡</div>
+                    <h4>Flask</h4>
+                    <p>Lightweight WSGI web server exposing REST endpoints for real-time model inference and telemetry.</p>
+                    <span class="tech-badge">Web Architecture</span>
+                </div>
+
+                <div class="tech-card">
+                    <div class="tech-icon-circle">🛰️</div>
+                    <h4>Sentinel-2</h4>
+                    <p>European Space Agency Copernicus constellation providing 13-band multispectral surface reflectance.</p>
+                    <span class="tech-badge">Earth Observation</span>
+                </div>
+
+                <div class="tech-card">
+                    <div class="tech-icon-circle">📊</div>
+                    <h4>OSCD</h4>
+                    <p>Onera Satellite Change Detection benchmark covering 24 diverse global cities across 5 continents.</p>
+                    <span class="tech-badge">Dataset Benchmark</span>
+                </div>
+
+                <div class="tech-card">
+                    <div class="tech-icon-circle">🧠</div>
+                    <h4>Vision Transformer</h4>
+                    <p>Multi-head self-attention module capturing long-range global spatial dependencies across temporal difference tokens.</p>
+                    <span class="tech-badge">Attention Model</span>
+                </div>
+
+                <div class="tech-card">
+                    <div class="tech-icon-circle">🏗️</div>
+                    <h4>U-Net Decoder</h4>
+                    <p>Four-stage upsampling convolutional decoder utilizing skip connections for granular spatial reconstruction.</p>
+                    <span class="tech-badge">Spatial Decoder</span>
+                </div>
+
+                <div class="tech-card">
+                    <div class="tech-icon-circle">👥</div>
+                    <h4>Siamese CNN</h4>
+                    <p>Twin convolutional encoders with shared weight matrices for symmetric feature extraction from T1 and T2.</p>
+                    <span class="tech-badge">Feature Extractor</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- =====================================================
+         12. PROJECT FILE / MODEL STATUS SECTION
+    ====================================================== -->
+    <section class="system-status-section" id="system-status">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">SYSTEM SPECIFICATIONS</div>
+                <h2 class="section-title">Project File & Model Status</h2>
+                <p class="section-desc">
+                    Operational telemetry and verified parameter specifications of the deployed change-detection pipeline.
+                </p>
+            </div>
+
+            <div class="status-cards-grid">
+                <div class="status-card">
+                    <div class="status-card-header">
+                        <span class="sc-badge">DATASET STATUS</span>
+                        <h4>OSCD Sentinel-2 Multispectral</h4>
+                    </div>
+                    <ul class="sc-list">
+                        <li><strong>Spectral Configuration:</strong> 13 Spectral Bands (B1 through B12)</li>
+                        <li><strong>Spatial Resolution:</strong> 10m Ground Sample Distance</li>
+                        <li><strong>Patch Dimensions:</strong> 128 × 128 Pixels</li>
+                        <li><strong>Scenes:</strong> 14 Training Scenes • 10 Held-Out Untouched Test Scenes</li>
+                        <li><strong>Class Balance:</strong> ~5% Changed Pixels vs ~95% Unchanged Background</li>
+                    </ul>
+                </div>
+
+                <div class="status-card">
+                    <div class="status-card-header">
+                        <span class="sc-badge highlight">MODELS STATUS</span>
+                        <h4>Trained PyTorch Models</h4>
+                    </div>
+                    <ul class="sc-list">
+                        <li><strong>Primary Architecture:</strong> Enhanced Siamese CNN + Vision Transformer</li>
+                        <li><strong>Model Parameters:</strong> 767,777 Learnable Weights</li>
+                        <li><strong>Device:</strong> CPU / CUDA Torch Execution</li>
+                        <li><strong>Checkpoint Status:</strong> Loaded & Verified (hybrid_siamese_vit_augmented.pth)</li>
+                        <li><strong>Generalization Checkpoint:</strong> Loaded & Verified (tue_hybrid_siamese_vit.pth)</li>
+                    </ul>
+                </div>
+
+                <div class="status-card">
+                    <div class="status-card-header">
+                        <span class="sc-badge">ARCHITECTURE</span>
+                        <h4>Siamese CNN + ViT + U-Net</h4>
+                    </div>
+                    <ul class="sc-list">
+                        <li><strong>Encoder:</strong> 3-Stage Shared Siamese CNN (13 → 32 → 64 → 128)</li>
+                        <li><strong>Temporal Fusion:</strong> Absolute Difference |F1 − F2|</li>
+                        <li><strong>Attention:</strong> 2-Layer ViT • 4 Attention Heads • 256 Tokens (128-D)</li>
+                        <li><strong>Decoder:</strong> 4-Stage U-Net with Skip Connections (128 → 64 → 32 → 1)</li>
+                        <li><strong>Loss Function:</strong> Compound BCE + Dice Loss (Equal Weighting)</li>
+                    </ul>
+                </div>
+
+                <div class="status-card">
+                    <div class="status-card-header">
+                        <span class="sc-badge">EVALUATION</span>
+                        <h4>Verified Research Metrics</h4>
+                    </div>
+                    <ul class="sc-list">
+                        <li><strong>Untouched Test Accuracy:</strong> 95.44%</li>
+                        <li><strong>Untouched Test Precision:</strong> 58.74%</li>
+                        <li><strong>Untouched Test Recall:</strong> 39.79%</li>
+                        <li><strong>Untouched Test F1:</strong> 47.44% (IoU: 31.10%)</li>
+                        <li><strong>10-Fold Cross-Validation:</strong> Mean F1: 24.88% ± 10.96% • Mean IoU: 15.90% ± 8.10%</li>
+                    </ul>
+                </div>
+
+                <div class="status-card">
+                    <div class="status-card-header">
+                        <span class="sc-badge">BACKEND</span>
+                        <h4>Flask 3.1 REST Endpoints</h4>
+                    </div>
+                    <ul class="sc-list">
+                        <li><strong>Inference Endpoint:</strong> POST /predict (Supports NPZ, Images, Samples)</li>
+                        <li><strong>Generalization Endpoint:</strong> GET /tue-result & GET /tue-result-image</li>
+                        <li><strong>Telemetry Endpoint:</strong> GET /api/status & GET /api/benchmarks</li>
+                        <li><strong>Validation Endpoint:</strong> GET /api/cross-validation</li>
+                        <li><strong>Literature Endpoint:</strong> GET /api/papers</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- =====================================================
+         13. FOOTER
+    ====================================================== -->
+    <footer class="footer">
+        <div class="container footer-container">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <div class="brand-title">UrbanScope <strong>AI</strong></div>
+                    <p class="footer-tagline">
+                        AI-Based Satellite Urban Expansion and Land-Use Change Detection
+                    </p>
+                    <div class="footer-academic-meta">
+                        <span class="meta-tag">VIT Tech-a-thon</span>
+                        <span class="meta-tag">Fall Semester 2026–2027</span>
+                    </div>
+                </div>
+
+                <div class="footer-team-box">
+                    <h5>Research Team</h5>
+                    <div class="team-members">
+                        <div class="team-member">
+                            <span class="tm-name">Krishnananda</span>
+                            <span class="tm-reg">24BIT0520</span>
+                        </div>
+                        <div class="team-member">
+                            <span class="tm-name">Shristi Sehgal</span>
+                            <span class="tm-reg">24BIT0202</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="footer-nav">
+                    <h5>Navigation</h5>
+                    <a href="#overview">Overview</a>
+                    <a href="#detection">Detection</a>
+                    <a href="#models">Models</a>
+                    <a href="#architecture">Architecture</a>
+                    <a href="#results">Results</a>
+                    <a href="#workflow">Workflow</a>
+                    <a href="#cross-validation">Validation</a>
+                    <a href="#literature">Research</a>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <div class="copy-text">
+                    &copy; 2026–2027 UrbanScope AI • AI-Based Satellite Urban Expansion and Land-Use Change Detection • VIT Tech-a-thon
+                </div>
+                <div class="footer-badges">
+                    <span class="f-badge">PyTorch 2.14</span>
+                    <span class="f-badge">Flask 3.1</span>
+                    <span class="f-badge">Sentinel-2 13-Band</span>
+                    <span class="f-badge">OSCD Benchmark</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Controller -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+
+</html>

@@ -1,0 +1,16 @@
+10-FOLD SCENE-LEVEL CROSS VALIDATION
+Siamese CNN + Vision Transformer
+
+Fold 1: F1=0.3040, IoU=0.2000
+Fold 2: F1=0.3052, IoU=0.1956
+Fold 3: F1=0.2170, IoU=0.1290
+Fold 4: F1=0.2715, IoU=0.1677
+Fold 5: F1=0.2010, IoU=0.1251
+Fold 6: F1=0.4519, IoU=0.3149
+Fold 7: F1=0.1017, IoU=0.0560
+Fold 8: F1=0.3518, IoU=0.2384
+Fold 9: F1=0.1720, IoU=0.1011
+Fold 10: F1=0.1123, IoU=0.0623
+
+Mean F1: 0.2488 +/- 0.1096
+Mean IoU: 0.1590 +/- 0.0810

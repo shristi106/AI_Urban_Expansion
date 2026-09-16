@@ -1,0 +1,15 @@
+CORRECTED MODEL TRAINING REPORT
+============================================================
+
+Model: Siamese CNN + Vision Transformer
+Correction techniques:
+- Training-only spatial augmentation
+- Training-only spectral perturbation
+- Increased AdamW weight decay
+- Gradient clipping
+- Early stopping
+
+Epochs completed: 3
+Best epoch: 0
+Best validation F1: 0.000000
+Best validation IoU: 0.000000

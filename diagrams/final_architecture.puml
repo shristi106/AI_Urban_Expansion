@@ -1,0 +1,132 @@
+@startuml
+title Enhanced Siamese CNN + Vision Transformer\nfor Urban Change Detection
+
+skinparam backgroundColor white
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 14
+skinparam ArrowColor #444444
+
+skinparam rectangle {
+    BackgroundColor #F8F9FA
+    BorderColor #555555
+    RoundCorner 15
+}
+
+rectangle "INPUT T1\n13-Band Satellite Image\n13 × H × W" as T1
+
+rectangle "INPUT T2\n13-Band Satellite Image\n13 × H × W" as T2
+
+
+package "Shared Siamese CNN Encoder" {
+
+    rectangle "CNN Block 1\n13 → 32\nH × W" as E1
+
+    rectangle "CNN Block 2\n32 → 64\nH/2 × W/2" as E2
+
+    rectangle "CNN Block 3\n64 → 128\nH/4 × W/4" as E3
+
+    rectangle "Feature Map\n128 channels\nH/8 × W/8" as E4
+}
+
+T1 --> E1
+T2 --> E1
+
+E1 --> E2
+E2 --> E3
+E3 --> E4
+
+note right of E1
+Same encoder weights
+are shared between
+T1 and T2
+end note
+
+
+rectangle "Temporal Feature Difference\n\n|F1 − F2|\n\nAbsolute Difference" as DIFF
+
+E4 --> DIFF
+
+
+package "Vision Transformer" {
+
+    rectangle "Adaptive Pooling\n32 × 32 → 16 × 16" as POOL
+
+    rectangle "Patch / Token Embedding\n256 Tokens\n128-D Embeddings" as EMBED
+
+    rectangle "Positional Encoding" as POS
+
+    rectangle "Transformer Encoder\n\nMulti-Head Self Attention\n+\nFeed Forward Network\n\n2 Layers" as TRANS
+}
+
+DIFF --> POOL
+POOL --> EMBED
+EMBED --> POS
+POS --> TRANS
+
+
+package "U-Net Style Decoder" {
+
+    rectangle "Transformer Features\n+\nCNN Difference Features" as FUSION
+
+    rectangle "Upsample Block 1\n128 → 64" as D1
+
+    rectangle "Upsample Block 2\n64 → 32" as D2
+
+    rectangle "Upsample Block 3\n32 → 16" as D3
+
+    rectangle "Upsample Block 4\n16 → 1" as D4
+}
+
+TRANS --> FUSION
+DIFF --> FUSION
+
+FUSION --> D1
+D1 --> D2
+D2 --> D3
+D3 --> D4
+
+
+rectangle "OUTPUT\nBinary Change Map\n1 × H × W\n\nUrban Expansion / Land-Use Change" as OUTPUT
+
+D4 --> OUTPUT
+
+
+package "Training-Only Robustness Enhancement" {
+
+    rectangle "Spatial Augmentation\n\n• Horizontal Flip\n• Vertical Flip\n• Random 90° Rotation" as AUG1
+
+    rectangle "Spectral / Temporal Perturbation\n\n• Band Scaling\n• Gaussian Noise\n• Brightness Scaling\n• Independent T1/T2 Perturbation" as AUG2
+}
+
+AUG1 ..> T1 : training only
+AUG1 ..> T2 : training only
+AUG2 ..> T1 : training only
+AUG2 ..> T2 : training only
+
+
+package "Training Objective" {
+
+    rectangle "BCE Loss\nPixel-wise Classification" as BCE
+
+    rectangle "Dice Loss\nHandles Pixel-level Imbalance" as DICE
+
+    rectangle "Total Loss\nBCE + Dice" as LOSS
+}
+
+BCE --> LOSS
+DICE --> LOSS
+
+OUTPUT ..> LOSS : predicted mask
+LOSS ..> TRANS : backpropagation
+
+
+note bottom
+Dataset: OSCD
+Input: 13-band Sentinel-2 multispectral images
+Output: Pixel-wise binary change map
+Final enhanced model: Siamese CNN + ViT
+end note
+
+@enduml

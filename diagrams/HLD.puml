@@ -1,0 +1,59 @@
+@startuml
+title High-Level Design - AI-Based Satellite Urban Expansion\nand Land-Use Change Detection
+
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 14
+skinparam ArrowColor #444444
+
+skinparam rectangle {
+    BackgroundColor #F8F9FA
+    BorderColor #555555
+    RoundCorner 15
+}
+
+rectangle "Sentinel-2 Satellite Data\n\nOSCD Dataset\nBi-temporal Images\nT1 + T2" as INPUT
+
+rectangle "Data Preprocessing\n\n• 13-band input\n• Normalization\n• Image alignment\n• Patch extraction\n• Train / Validation split" as PREPROCESS
+
+rectangle "Five Hybrid Models\n\n1. Siamese CNN + ViT\n2. U-Net + Transformer\n3. ResNet + LSTM\n4. CNN + Change Detection Network\n5. Swin Transformer + U-Net" as MODELS
+
+rectangle "Model Training\n\nBCE + Dice Loss\nAdamW Optimizer\nTraining-only Augmentation" as TRAIN
+
+rectangle "Comparative Evaluation\n\nAccuracy\nPrecision\nRecall\nF1 Score\nIoU\nDice" as EVAL
+
+rectangle "Best Model Selection\n\nEnhanced Siamese CNN + ViT" as BEST
+
+rectangle "Urban Change Detection\n\nBi-temporal Feature Comparison\n+ Global Context Analysis" as DETECT
+
+rectangle "Final Change Map\n\nPixel-wise Binary Map\n\nChanged / Unchanged" as OUTPUT
+
+rectangle "Urban Expansion Analysis\n\nIdentification of\nChanged Built-up Regions" as ANALYSIS
+
+INPUT --> PREPROCESS
+PREPROCESS --> MODELS
+MODELS --> TRAIN
+TRAIN --> EVAL
+EVAL --> BEST
+BEST --> DETECT
+DETECT --> OUTPUT
+OUTPUT --> ANALYSIS
+
+note right of BEST
+Final enhanced model:
+Siamese CNN + Vision Transformer
+
+Training enhancement:
+Spatial + spectral/temporal
+perturbations
+end note
+
+note bottom
+Goal:
+Detect and visualize urban expansion
+and land-use changes between
+two satellite observations.
+end note
+
+@enduml

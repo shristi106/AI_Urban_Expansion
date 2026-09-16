@@ -1,0 +1,118 @@
+@startuml
+title Low-Level Design - Enhanced Siamese CNN + Vision Transformer
+
+skinparam backgroundColor white
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+skinparam ArrowColor #444444
+
+skinparam rectangle {
+    BackgroundColor #F8F9FA
+    BorderColor #555555
+    RoundCorner 15
+}
+
+package "Data Layer" {
+
+    rectangle "OSCDPatchDataset\n\nLoads T1, T2 and mask\n13-band satellite patches" as DATA
+
+    rectangle "Preprocessing\n\nNormalization\nPatch preparation\nTensor conversion" as PRE
+
+    rectangle "Training Augmentation\n\nSpatial:\nFlip + Rotation\n\nSpectral/Temporal:\nBand scaling + Noise\n+ Brightness" as AUG
+}
+
+package "Feature Extraction" {
+
+    rectangle "Siamese Encoder T1\n\nConv Block 1\n13 → 32\n\nConv Block 2\n32 → 64\n\nConv Block 3\n64 → 128" as ENC1
+
+    rectangle "Siamese Encoder T2\n\nShared Weights\n\nConv Block 1\n13 → 32\n\nConv Block 2\n32 → 64\n\nConv Block 3\n64 → 128" as ENC2
+
+    rectangle "Temporal Difference\n\nAbsolute Difference\n\n|F1 − F2|" as DIFF
+}
+
+package "Global Context Module" {
+
+    rectangle "Adaptive Pooling\n\n32 × 32 → 16 × 16" as POOL
+
+    rectangle "Token Embedding\n\n256 Tokens\n128-D Features" as TOKEN
+
+    rectangle "Positional Embedding" as POS
+
+    rectangle "Vision Transformer\n\nMulti-Head Self Attention\n\nTransformer Encoder\n2 Layers" as VIT
+}
+
+package "Change Reconstruction" {
+
+    rectangle "Feature Fusion\n\nTransformer Features\n+\nTemporal Difference" as FUSION
+
+    rectangle "U-Net Decoder\n\nUpsampling\nFeature Reconstruction\nSkip Connections" as DEC
+
+    rectangle "Output Layer\n\n1 × 128 × 128\nSigmoid / Binary Map" as OUT
+}
+
+package "Training & Evaluation" {
+
+    rectangle "Loss Function\n\nBCE Loss\n+\nDice Loss" as LOSS
+
+    rectangle "Optimizer\n\nAdamW\nLearning Rate: 1e-4" as OPT
+
+    rectangle "Validation\n\nF1 / IoU / Dice\nPrecision / Recall" as VAL
+
+    rectangle "Final Test Evaluation\n\nUntouched OSCD Test Set" as TEST
+}
+
+
+DATA --> PRE
+PRE --> AUG
+
+AUG --> ENC1
+AUG --> ENC2
+
+ENC1 --> DIFF
+ENC2 --> DIFF
+
+DIFF --> POOL
+POOL --> TOKEN
+TOKEN --> POS
+POS --> VIT
+
+DIFF --> FUSION
+VIT --> FUSION
+
+FUSION --> DEC
+DEC --> OUT
+
+OUT --> LOSS
+LOSS --> OPT
+OPT ..> ENC1 : Backpropagation
+OPT ..> ENC2 : Backpropagation
+OPT ..> VIT : Backpropagation
+OPT ..> DEC : Backpropagation
+
+OUT --> VAL
+VAL --> TEST
+
+note right of ENC2
+T1 and T2 use the
+same encoder architecture
+and shared weights.
+end note
+
+note bottom of AUG
+Augmentation is applied
+only during training.
+Validation and test data
+remain untouched.
+end note
+
+note bottom
+Final model:
+Enhanced Siamese CNN + ViT
+
+Objective:
+Pixel-level satellite change detection
+for urban expansion analysis.
+end note
+
+@enduml

@@ -1,0 +1,8 @@
+.venv/
+dataset/
+datasets/
+papers/
+__pycache__/
+*.pyc
+*.ipynb_checkpoints/
+.env
